@@ -1,10 +1,11 @@
 import os
 
-def capture(ssh,scp,filename,remote_img_path):
+def capture(ssh,filename,remote_img_path):
  
     # remote
 
-    cmd2 = "raspistill -o {0}{1}".format(remote_img_path,filename)
+    cmd2 = "raspistill -o {0}/{1}".format(remote_img_path,filename)
+    print("in {0}/{1}".format(remote_img_path,filename))
     ssh.exec_command(cmd2)
     
     # list = scp.get()

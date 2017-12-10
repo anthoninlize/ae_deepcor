@@ -18,8 +18,9 @@ def liveview_on(fps,ssh,ip_local):
 
 def liveview_off(ssh):
     
-    cmd = "kill $(ps -e | grep raspi | awk '{print $1}'"
+    cmd = "kill $(ps -e | grep raspi | awk '{print $1}')"
     ssh.exec_command(cmd)
+    
     #for line in p.stdout:
       #  print(">> "+ str(line.rstrip()))
         #p.stdout.flush()

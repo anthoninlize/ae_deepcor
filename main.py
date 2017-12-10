@@ -10,6 +10,7 @@ import capture
 import img_transfer
 import insert_info_to_image
 import ipdb
+from scp import SCPClient
 
 from input import *
 
@@ -35,6 +36,7 @@ ssh.connect(
     password=password_remote
 )
 
+
 # SCP 
 scp = SCPClient(ssh.get_transport())
 
@@ -50,8 +52,8 @@ while True :
         liveview.liveview_off(ssh)
         print('\nLiveview ended...')
         break
-    
-# Capture picture   
+
+# Image capture
 print('\nCapture...')
 
 raw_file = '{}{}{}_{}h{}m{}s.jpeg'.format(
@@ -63,6 +65,9 @@ raw_file = '{}{}{}_{}h{}m{}s.jpeg'.format(
     timestamp.second
 )
 
-capture.capture(ssh,raw_file)
+capture.capture(ssh,raw_file,remote_img_path)
+
+# Remote measurements
+
 
 # Data transfer from remote to local
