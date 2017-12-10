@@ -7,7 +7,6 @@ import paramiko
 
 import liveview
 import capture
-import img_transfer
 import insert_info_to_image
 import ipdb
 from scp import SCPClient
@@ -22,9 +21,7 @@ sys.path.insert(0, './sensors/temp_sali_sensors')
 import pressure
 import temp_sali
 
-#-------------------- Date and Time acquisition and format----------------------
 timestamp = datetime.now()
-timestamp_2 = '{}-{}-{} {}:{}:{}'.format(timestamp.day, timestamp.month,timestamp.year, timestamp.hour, timestamp.minute, timestamp.second)
 
 
 #------------------------- SSH remote connection--------------------------------
@@ -42,34 +39,39 @@ scp = SCPClient(ssh.get_transport())
 
 
 # ------------------------------- Live view-------------------------------------
-# liveview.liveview_on(lv_fps,ssh,ip_local)
-# while True :
-#     key = input("\nLoading liveview... \nPress 'q' to quit Liveview, press 'c' for capture:")
-#     if key == 'q':
-#         print('\nLiveview ended...')
-#         exit()
-#     elif key == 'c':
-#         liveview.liveview_off(ssh)
-#         print('\nLiveview ended...')
-#         break
+liveview.liveview_on(lv_fps,ssh,ip_local)
+while True :
+    key = input("\nLoading liveview... \nPress 'q' to quit Liveview, press 'c' for capture:")
+    if key == 'q':
+        print('\nLiveview ended...')
+        exit()
+    elif key == 'c':
+        liveview.liveview_off(ssh)
+        print('\nLiveview ended...')
+        break
 
 # -------------------------------Image capture----------------------------------
-# print('\nCapture...')
-# 
-# raw_file = '{}{}{}_{}h{}m{}s.jpeg'.format(
-#     timestamp.year,
-#     timestamp.month,
-#     timestamp.day,
-#     timestamp.hour,
-#     timestamp.minute,
-#     timestamp.second
-# )
-# 
-# capture.capture(ssh,raw_file,remote_img_path)
+
+print('\nCapture...')
+
+raw_file = '{}{}{}_{}h{}m{}s.jpeg'.format(
+    timestamp.year,
+    timestamp.month,
+    timestamp.day,
+    timestamp.hour,
+    timestamp.minute,
+    timestamp.second
+)
+
+capture.capture(ssh,raw_file,remote_img_path)
+time.sleep(5)
+
 
 # -----------------------  Remote measurements -----------------------
 # add  __init__.py in sensor folders
 # le code ci-dessous est degueu... mais il marche :p
+
+print('\nMeasurements...')
 
 # Get salinity
 cmd_s="cd CodeDeepcor; python -c  'from temp_sali_sensors import temp_sali; print temp_sali.get_sali()'"
@@ -91,12 +93,49 @@ cmd_l = "cd CodeDeepcor; python -c 'from lux_sensor import lux; print lux.get_lu
 ssh_stdin, ssh_stdout, ssh_stderr = ssh.exec_command(cmd_l)
 lux = float(ssh_stdout.readlines()[0][0:-1])
 
-print("Luminosity: %0.2f" %lux)
+print("\nLuminosity: %0.2f" %lux)
 print("Pressure: %0.2f" %pressure)
 print("Temperature: %0.2f" %temperature)
 print("Salinity: %0.2f" %salinity)
-ipdb.set_trace()
 
 # ---------------------------  GPS measurements -------------------------------
 
-# Data transfer from remote to local
+print('\nGPS measurements...')
+gps_coord = 'to be measured'
+
+# ---------------------Data transfer from remote to local----------------------
+print('{0}/{1}'.format(remote_img_path,raw_file))
+scp.get('{0}/{1}'.format(remote_img_path,raw_file),local_rawimg_path)
+print("\nImage transfer done!")
+
+# -------------------------- Save data in csv ---------------------------
+
+# Date and Time acquisition and format
+timestamp = '{}-{}-{} {}:{}:{}'.format(
+    timestamp.day, 
+    timestamp.month,
+    timestamp.year, 
+    timestamp.hour, 
+    timestamp.minute, 
+    timestamp.second
+)
+
+# Saving data in files
+
+print("\nSaving data in csv...")
+fcsv = open('csv/data_all.csv', 'a')
+fcsv.write('{};{};{};{};{};{}\n'.format(timestamp, lux, pressure, temperature, salinity, raw_file))
+fcsv.close()
+
+fcsv = open('csv/data_one.csv', 'w')
+fcsv.write('{};{};{};{};{};{}\n'.format(timestamp, lux, pressure, temperature, salinity, raw_file))
+fcsv.close()
+
+# ------------------------ Write data on image ---------------------------
+print("\nWritting data on image...")
+insert_info_to_image.add_banner(local_rawimg_path, local_modimg_path, timestamp, gps_coord, str(lux), str(pressure), str(temperature), str(salinity), raw_file)
+
+print("\nEnd of program !")
+
+scp.close()
+ssh.close()

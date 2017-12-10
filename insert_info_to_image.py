@@ -8,17 +8,19 @@ font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 40)
 def coords( x, y, image ):
     return [0.01 * x * image.size[0],0.01 * y * image.size[1]]
 
-def add_banner(timestamp, lux, pressure, temperature, salinity, picture_name):
-    image_source = Image.open('./pictures/raw/' + picture_name)
+def add_banner(local_rawimg_path, local_modimg_path, timestamp, gps_coords, lux, pressure, temperature, salinity, picture_name):
+    image_source = Image.open(local_rawimg_path + picture_name)
     banner_height=400
     banner = Image.new("RGBA", (image_source.size[0],banner_height), (0,0,0))
     draw = ImageDraw.Draw(banner)
     
     #LEFT SIDE
     #Date
-    draw.text(coords(10,10,banner), "Timestamp: " + timestamp, (255,255,255), font=font)
+    draw.text(coords(10,10,banner), "Timestamp:", (255,255,255), font=font)
+    draw.text(coords(20,10,banner), timestamp, (255,255,255), font=font)
     #Location
-    draw.text(coords(10,30,banner), "Location: La Paillasse", (255,255,255), font=font)
+    draw.text(coords(10,30,banner), "Location:", (255,255,255), font=font)
+    draw.text(coords(20,30,banner), gps_coords, (255,255,255), font=font)
     
     #RIGHT SIDE
     #Pressure
@@ -40,7 +42,8 @@ def add_banner(timestamp, lux, pressure, temperature, salinity, picture_name):
     newImage.paste(image_source,(0,0))
     newImage.paste(banner,(0,image_source.size[1]))
     
-    newImage.save('./pictures/modified/with_banner_'+picture_name,"JPEG")
+    
+    newImage.save(local_modimg_path+picture_name)
     return
 
 #add_banner("timestamp", "lux", "pressure", "temperature", "salinity", "raw_picture.jpeg")
