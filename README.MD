@@ -1,6 +1,9 @@
-Code du programme DEEPCOR d'Astrolabe-Expeditions
-http://www.astrolabe-expeditions.org
-https://www.facebook.com/AstrolabeExpeditions/
+<br /> Code du programme DEEPCOR d'Astrolabe-Expeditions <br >
+
+[Site web Astrolabe-Expeditions](http://www.astrolabe-expeditions.org)
+
+
+[Facebook Astrolabe-Expeditions](https://www.facebook.com/AstrolabeExpeditions/)
 
 1. Programme DEEPCOR
 C'est un programme de sciences participatives et citoyennes, dont le but est de capturer des images de coraux profonds (30-100m) et des conditions environemmentales.
