@@ -1,4 +1,15 @@
 #/usr/bin/python3.5
+"""
+Script principal appelant les méthodes de :
+- connexion en SSH au 2eme raspberryPI (en profondeur)
+- streaming de la video
+- capture d'image et copie de la photo
+- mesures des 4 capteurs en profondeur
+- copie des données en surface et enregistrement en CSV
+- ecriture des données sur la photo
+Reste à implémenter :
+- import des données GPS en surface
+"""
 import sys
 from datetime import datetime
 import time
@@ -78,7 +89,7 @@ cmd_s="cd CodeDeepcor; python -c  'from temp_sali_sensors import temp_sali; prin
 ssh_stdin,ssh_stdout,ssh_stderr = ssh.exec_command(cmd_s)
 salinity = float(ssh_stdout.readlines()[0][0:-1])
 
-# Get salinity
+# Get temperature
 cmd_t="cd CodeDeepcor; python -c  'from temp_sali_sensors import temp_sali; print temp_sali.get_temp()'"
 ssh_stdin,ssh_stdout,ssh_stderr = ssh.exec_command(cmd_t)
 temperature = float(ssh_stdout.readlines()[0][0:-1])
