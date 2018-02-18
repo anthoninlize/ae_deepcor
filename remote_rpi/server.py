@@ -7,7 +7,7 @@ class Server:
 	"""
 	Defines all the behavior of the socket server running on the remote Raspberry Pi.
 	"""
-	__ip = 169.254.111.142
+	__ip = "169.254.111.142"
 	__port = 1025
 	__bufferSize = 16
 	__socket = None
