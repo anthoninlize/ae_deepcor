@@ -1,0 +1,5 @@
+remote video broadcasting
+raspivid -t 0 -w 640 -h 360 -fps 20 -l -o tcp://0.0.0.0:1024
+
+local video streaming
+mplayer -fps 200 -demuxer h264es ffmepg://tcp://169.254.111.142:1024
