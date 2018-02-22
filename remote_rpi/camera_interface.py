@@ -1,6 +1,7 @@
 import os
 import signal
 import subprocess as sp
+from image_editor import ImageEditor
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -12,8 +13,11 @@ class Liveview:
 	__videoFps = 20
 	__videoImageWidth = 640
 	__videoImageHeight = 360
+
 	__pictureImageWidth = 640
 	__pictureImageHeight = 360
+	__pictureFilePath = "./"
+	__pictureFileNamePattern = "test.jpg"
 
 	__videoSubprocess = None
 
@@ -36,7 +40,8 @@ class Liveview:
 		"""
 		Builds a shell command based in input paramaters
 		"""
-		return ("raspistill -n -t 0 -w " + str(width) + " -h " + str(height))
+		return ("raspistill -n -t 0 -w " + str(width) + " -h " + str(height)
+			+ " -o " + self.__pictureFilePath + self.__pictureFileNamePattern)
 
 	def startVideo(self, **kwargs):
 		"""
@@ -84,8 +89,10 @@ class Liveview:
 		if "height" in kwargs.keys():
 			self.__captureImageHeight = kwargs["height"]
 
-		# Starting video broadcasting
-		cmd = self.__getRaspistillCommand(self.__videoImageWidth, self.__videoImageHeight)
+		# Capturing image
+		cmd = self.__getRaspistillCommand(self.__captureImageWidth, self.__captureImageHeight)
 		logging.debug("Capturing image with the following command: " + cmd)
+		sp.Popen(cmd, stdout=sp.PIPE, shell=True)
 
-		#self.__videoSubprocess = sp.Popen(cmd)
+		imageEditor = ImageEditor()
+		imageEditor.getMeasurements()
