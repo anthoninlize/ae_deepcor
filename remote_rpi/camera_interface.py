@@ -1,7 +1,7 @@
 import os
 import signal
 import subprocess as sp
-from image_editor import ImageEditor
+#from image_editor import ImageEditor
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
@@ -94,5 +94,5 @@ class Liveview:
 		logging.debug("Capturing image with the following command: " + cmd)
 		sp.Popen(cmd, stdout=sp.PIPE, shell=True)
 
-		imageEditor = ImageEditor()
-		imageEditor.getMeasurements()
+		#imageEditor = ImageEditor()
+		#imageEditor.getMeasurements()

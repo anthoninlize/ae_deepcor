@@ -1,15 +1,17 @@
 import logging
 logging.basicConfig(level=logging.DEBUG)
 import socket
-from camera_interface import Liveview
+import struct
+from .camera_interface import Liveview
 
 class Server:
 	"""
 	Defines all the behavior of the socket server running on the remote Raspberry Pi.
 	"""
-	__ip = "169.254.111.142"
+	#__ip = "169.254.111.142"
+	__ip = "127.0.0.1"
 	__port = 1025
-	__bufferSize = 16
+	__bufferSize = 1024
 	__socket = None
 	__connection = None
 
@@ -24,6 +26,26 @@ class Server:
 
 		# Initializing liveview instance
 		self.__liveview = Liveview()
+
+	def __recvall(self, sock, count):
+		buf = b''
+		while count:
+			newbuf = sock.recv(count)
+			if not newbuf: return None
+			buf += newbuf
+			count -= len(newbuf)
+		return buf
+
+	def recv_message(self):
+		lengthbuf = self.__recvall(self.__connection, 4)
+		length, = struct.unpack('!I', lengthbuf)
+		data = self.__recvall(self.__connection, length)
+		return data.decode("utf8")
+
+	def send_message(self, message):
+		l = len(message)
+		self.__connection.sendall(struct.pack('!I', l)
+		self.__connection.sendall(bytes(message, "utf8"))
 
 	def startServer(self):
 		"""
@@ -46,27 +68,18 @@ class Server:
 		logging.debug(clientAddress)
 		try:
 			while not(shouldShutdownServer):
-				bufferedData = ""
 
-				# Receive the data in small chunks and retransmit it
-				remainingData = True
-				data = ""
-				while remainingData:
-					bufferedData = self.__connection.recv(self.__bufferSize)
+				data = self.recv_message()
+
+				if data.startswith("shutdown"):
+					shouldShutdownServer = True
+				else:
+					self.processCommand(data.replace('\n', ''))
 					
-					if bufferedData and not(bufferedData.endswith("\n")):
-						data += bufferedData
-					else:
-						data += bufferedData
-						remainingData = False
-
-						if data.startswith("shutdown"):
-							shouldShutdownServer = True
-						else:
-							self.processCommand(data.replace('\n', ''))
 		except Exception as e:
 			logging.error("Error: ")
 			logging.error(e)
+			raise
 
 		self.closeServer()
 
@@ -104,6 +117,8 @@ class Server:
 					commandParameters[param[0]] = param[1]
 			self.__liveview.startVideo(**commandParameters)
 
+			self.send_message("videostarted")
+
 		elif command.startswith("capture"):
 			commandParameters = {"width": None, "height": None}
 			parts = command.split(" ")
@@ -112,3 +127,6 @@ class Server:
 				if param[0] in commandParameters.keys():
 					commandParameters[param[0]] = param[1]
 			self.__liveview.capture(**commandParameters)
+
+		elif command.startswith("endvideo"):
+			self.__liveview.endVideo()

@@ -13,7 +13,7 @@ class ImageEditor():
         self.__font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 40)
 
     def getMeasurements(self):
-        
+        pass
         
     def coords(self, x, y, image ):
         return [0.01 * x * image.size[0],0.01 * y * image.size[1]]

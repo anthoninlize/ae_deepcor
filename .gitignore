@@ -1,2 +1,3 @@
 #ignorer les fichiers de compilation de Python
 *.pyc
+.vscode
