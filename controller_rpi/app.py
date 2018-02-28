@@ -26,15 +26,15 @@ class App:
         return buf
     
     def recv_message(self):
-		lengthbuf = self.__recvall(self.__connection, 4)
-		length, = struct.unpack('!I', lengthbuf)
-		data = self.__recvall(self.__connection, length)
-		return data.decode("utf8")
+        lengthbuf = self.__recvall(self.__connection, 4)
+        length, = struct.unpack('!I', lengthbuf)
+        data = self.__recvall(self.__connection, length)
+        return data.decode("utf8")
 
-	def send_message(self, message):
-		l = len(message)
-		self.__connection.sendall(struct.pack('!I', l)
-		self.__connection.sendall(bytes(message, "utf8"))
+    def send_message(self, message):
+        l = len(message)
+        self.__connection.sendall(struct.pack('!I', l))
+        self.__connection.sendall(bytes(message, "utf8"))
 
     def startup(self):
         self.__remote_rpi_ip = input("Remote RPI IP: ")
@@ -52,6 +52,7 @@ class App:
             self.send_message(cmd)
             # waiting for the response
             data = self.recv_message()
+            print("received: " + data)
             self.process_response(data)
 
             cmd = input("")
@@ -65,7 +66,7 @@ class App:
         if message == "videostarted":
             # Starts livestreaming the video
             pass
-        elif message = "capturedone":
+        elif message == "capturedone":
             #
             pass
         

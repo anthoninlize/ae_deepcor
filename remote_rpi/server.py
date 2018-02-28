@@ -44,7 +44,7 @@ class Server:
 
 	def send_message(self, message):
 		l = len(message)
-		self.__connection.sendall(struct.pack('!I', l)
+		self.__connection.sendall(struct.pack('!I', l))
 		self.__connection.sendall(bytes(message, "utf8"))
 
 	def startServer(self):
@@ -70,6 +70,7 @@ class Server:
 			while not(shouldShutdownServer):
 
 				data = self.recv_message()
+				print("received: " + data)
 
 				if data.startswith("shutdown"):
 					shouldShutdownServer = True
@@ -127,6 +128,10 @@ class Server:
 				if param[0] in commandParameters.keys():
 					commandParameters[param[0]] = param[1]
 			self.__liveview.capture(**commandParameters)
+			self.send_message("capturedone")
 
 		elif command.startswith("endvideo"):
 			self.__liveview.endVideo()
+			self.send_message("videoended")
+		else:
+			self.send_message("unknown command received")
