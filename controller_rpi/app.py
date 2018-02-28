@@ -9,6 +9,7 @@ class App:
     __remote_rpi_cmd_port = None
     __remote_rpi_video_port = None
     __connection = None
+    __videostream_sp = None
 
     def __init__(self):
         """
@@ -65,7 +66,8 @@ class App:
     def process_response(self, message):
         if message == "videostarted":
             # Starts livestreaming the video
-            pass
+            cmd = "mplayer -fps 200 -demuxer h264es ffmepg://tcp://{}:{}".format(self.__remote_rpi_ip, self.__remote_rpi_video_port)
+            self.__videostream_sp = sp.Popen(cmd, stdout=sp.PIPE, shell=True, preexec_fn=os.setsid)
         elif message == "capturedone":
             #
             pass
