@@ -1,6 +1,7 @@
 import os
 import signal
 import subprocess as sp
+from datetime import datetime
 #from image_editor import ImageEditor
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -16,8 +17,8 @@ class Liveview:
 
 	__pictureImageWidth = 640
 	__pictureImageHeight = 360
-	__pictureFilePath = "./"
-	__pictureFileNamePattern = "test.jpg"
+	__pictureFilePath = "./pictures/"
+	__pictureFileNamePattern = "{datetime}_raw.jpg"
 
 	__videoSubprocess = None
 
@@ -26,7 +27,9 @@ class Liveview:
 		"""
 		Constructor of the class
 		"""
-		pass
+		# Testing if picture folder exists, creating it otherwise
+		if not os.path.isdir(self.__pictureFilePath):
+			os.makedirs(self.__pictureFilePath)
 
 
 	def __getRaspividCommand(self, broadcastingPort, width, height, fps):
@@ -40,8 +43,10 @@ class Liveview:
 		"""
 		Builds a shell command based in input paramaters
 		"""
+		now = datetime.utcnow()
 		return ("raspistill -n -t 0 -w " + str(width) + " -h " + str(height)
-			+ " -o " + self.__pictureFilePath + self.__pictureFileNamePattern)
+			+ " -o " + self.__pictureFilePath 
+			+ self.__pictureFileNamePattern.format(datetime=now.strftime("%Y%m%d-%H%M%S.%f")))
 
 	def startVideo(self, **kwargs):
 		"""

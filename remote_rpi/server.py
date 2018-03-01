@@ -9,7 +9,7 @@ class Server:
 	Defines all the behavior of the socket server running on the remote Raspberry Pi.
 	"""
 	#__ip = "169.254.111.142"
-	__ip = "127.0.0.1"
+	__ip = ""
 	__port = 1025
 	__bufferSize = 1024
 	__socket = None
@@ -38,9 +38,12 @@ class Server:
 
 	def recv_message(self):
 		lengthbuf = self.__recvall(self.__connection, 4)
-		length, = struct.unpack('!I', lengthbuf)
-		data = self.__recvall(self.__connection, length)
-		return data.decode("utf8")
+		if lengthbuf is None:
+			return "connectionbroken"
+		else:
+			length, = struct.unpack('!I', lengthbuf)
+			data = self.__recvall(self.__connection, length)
+			return data.decode("utf8")
 
 	def send_message(self, message):
 		l = len(message)
@@ -67,13 +70,21 @@ class Server:
 		logging.debug("Connected client: ")
 		logging.debug(clientAddress)
 		try:
+			client_connected = True
 			while not(shouldShutdownServer):
-
+				if not client_connected:
+					logging.debug("Waiting for client connection...")
+					self.__connection, clientAddress = self.__socket.accept()
+					logging.debug("Connected client: ")
+					logging.debug(clientAddress)
+					client_connected = True
 				data = self.recv_message()
-				print("received: " + data)
+				logging.debug("received: " + data)
 
-				if data.startswith("shutdown"):
+				if data == "shutdown":
 					shouldShutdownServer = True
+				elif data == "connectionbroken":
+					client_connected = False
 				else:
 					self.processCommand(data.replace('\n', ''))
 					
@@ -81,8 +92,8 @@ class Server:
 			logging.error("Error: ")
 			logging.error(e)
 			raise
-
-		self.closeServer()
+		finally:
+			self.closeServer()
 
 
 	def closeServer(self):
@@ -127,11 +138,29 @@ class Server:
 				param = part.split("=")
 				if param[0] in commandParameters.keys():
 					commandParameters[param[0]] = param[1]
-			self.__liveview.capture(**commandParameters)
+			#self.__liveview.capture(**commandParameters)
+			file_name = "test_remote.jpg" # to get from the capture command
+			# TODO : get the pictures path from the camera_interface, or store it there and access it from the camera_interface
+			file = "./pictures/" + file_name
 			self.send_message("capturedone")
+			logging.debug("sending filename...")
+			self.send_message("controller_" + file_name)
+			logging.debug("sending file...")
+			self.send_image(file)
 
 		elif command.startswith("endvideo"):
 			self.__liveview.endVideo()
 			self.send_message("videoended")
 		else:
 			self.send_message("unknown command received")
+	
+	def send_image(self, file_name):
+		"""
+		Sends the given image through the socket, preceding by its size.
+		"""
+		with open(file_name, "rb") as image_file:
+			f = image_file.read()
+			b = bytearray(f)
+			l = len(b)
+			self.__connection.sendall(struct.pack('!I', l))
+			self.__connection.sendall(b)
