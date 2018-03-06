@@ -125,7 +125,7 @@ class App:
         """
         Starts the video livestream and keeps a reference to the sub process created
         """
-        cmd = "mplayer -fps 200 -demuxer h264es ffmepg://tcp://{}:{}".format(self.__remote_rpi_ip, self.__remote_rpi_video_port)
+        cmd = "mplayer -fps 200 -demuxer h264es ffmpeg://tcp://{}:{}".format(self.__remote_rpi_ip, self.__remote_rpi_video_port)
         self.__videostream_sp = sp.Popen(cmd, stdout=sp.PIPE, shell=True, preexec_fn=os.setsid)
     
     def stop_livestream(self):
