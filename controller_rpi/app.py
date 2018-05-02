@@ -72,22 +72,25 @@ class App:
         self.__connection.connect((self.__remote_rpi_ip, self.__remote_rpi_cmd_port))
         logging.info("Connected to {}:{}, waiting for command inputs.".format(self.__remote_rpi_ip, self.__remote_rpi_cmd_port))
         cmd = input("")
-        while cmd and cmd != "exit" and cmd != "shutdown":
-            print("sending " + cmd)
+        while cmd != "exit" and cmd != "shutdown":
+            if cmd:
+                print("sending " + cmd)
 
-            if cmd == "capture":
-                # Need to stop livestream beforehand
-                self.stop_livestream()
-            # sending command
-            self.send_message(cmd)
-            # waiting for the response
-            data = self.recv_message()
-            logging.debug("received: " + data)
-            result = self.process_response(data)
-            if result is None:
-                cmd = input("")
+                if cmd == "capture":
+                    # Need to stop livestream beforehand
+                    self.stop_livestream()
+                # sending command
+                self.send_message(cmd)
+                # waiting for the response
+                data = self.recv_message()
+                logging.debug("received: " + data)
+                result = self.process_response(data)
+                if result is None:
+                    cmd = input("")
+                else:
+                    cmd = result
             else:
-                cmd = result
+                cmd = input("")
         
         # sending shutdown command
         cmd = "shutdown"
@@ -126,7 +129,7 @@ class App:
         Starts the video livestream and keeps a reference to the sub process created
         """
         cmd = "mplayer -fps 200 -demuxer h264es ffmpeg://tcp://{}:{}".format(self.__remote_rpi_ip, self.__remote_rpi_video_port)
-        self.__videostream_sp = sp.Popen(cmd, stderr=sp.DEVNULL, stdout=sp.DEVNULL, shell=True, preexec_fn=os.setsid)
+        self.__videostream_sp = sp.Popen(cmd, stderr=sp.PIPE, stdout=sp.DEVNULL, stdin=sp.DEVNULL, shell=True, preexec_fn=os.setsid)
     
     def stop_livestream(self):
         """
