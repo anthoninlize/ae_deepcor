@@ -2,13 +2,14 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 import socket
 import struct
+import os
+import time
 from .camera_interface import Liveview
 
 class Server:
 	"""
 	Defines all the behavior of the socket server running on the remote Raspberry Pi.
 	"""
-	#__ip = "169.254.111.142"
 	__ip = ""
 	__port = 1025
 	__bufferSize = 1024
@@ -138,15 +139,15 @@ class Server:
 				param = part.split("=")
 				if param[0] in commandParameters.keys():
 					commandParameters[param[0]] = param[1]
-			#self.__liveview.capture(**commandParameters)
-			file_name = "test_remote.jpg" # to get from the capture command
+			file_name = self.__liveview.capture(**commandParameters)
 			# TODO : get the pictures path from the camera_interface, or store it there and access it from the camera_interface
-			file = "./pictures/" + file_name
+			filepath = os.path.abspath("./pictures/" + file_name)
 			self.send_message("capturedone")
 			logging.debug("sending filename...")
+			time.sleep(1)
 			self.send_message("controller_" + file_name)
 			logging.debug("sending file...")
-			self.send_image(file)
+			self.send_image(filepath)
 
 		elif command.startswith("endvideo"):
 			self.__liveview.endVideo()

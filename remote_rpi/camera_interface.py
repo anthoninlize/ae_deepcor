@@ -19,6 +19,7 @@ class Liveview:
 	__pictureImageHeight = 360
 	__pictureFilePath = "./pictures/"
 	__pictureFileNamePattern = "{datetime}_raw.jpg"
+	__currentFileName = None
 
 	__videoSubprocess = None
 
@@ -44,9 +45,10 @@ class Liveview:
 		Builds a shell command based in input paramaters
 		"""
 		now = datetime.utcnow()
-		return ("raspistill -n -t 0 -w " + str(width) + " -h " + str(height)
+		self.__currentFileName = self.__pictureFileNamePattern.format(datetime=now.strftime("%Y%m%d-%H%M%S"))
+		return ("raspistill -n -t 1 -w " + str(width) + " -h " + str(height)
 			+ " -o " + self.__pictureFilePath 
-			+ self.__pictureFileNamePattern.format(datetime=now.strftime("%Y%m%d-%H%M%S.%f")))
+			+ self.__currentFileName)
 
 	def startVideo(self, **kwargs):
 		"""
@@ -90,14 +92,18 @@ class Liveview:
 		self.endVideo()
 
 		if "width" in kwargs.keys():
-			self.__captureImageWidth = kwargs["width"]
+			if kwargs["width"] is not None:
+                            self.__pictureImageWidth = kwargs["width"]
 		if "height" in kwargs.keys():
-			self.__captureImageHeight = kwargs["height"]
+			if kwargs["width"] is not None:
+                            self.__pictureImageHeight = kwargs["height"]
 
 		# Capturing image
-		cmd = self.__getRaspistillCommand(self.__captureImageWidth, self.__captureImageHeight)
+		cmd = self.__getRaspistillCommand(self.__pictureImageWidth, self.__pictureImageHeight)
 		logging.debug("Capturing image with the following command: " + cmd)
-		sp.Popen(cmd, stdout=sp.PIPE, shell=True)
+		sp.Popen(cmd, stdout=sp.DEVNULL, stderr=sp.DEVNULL, shell=True)
+		
+		return self.__currentFileName
 
 		#imageEditor = ImageEditor()
 		#imageEditor.getMeasurements()

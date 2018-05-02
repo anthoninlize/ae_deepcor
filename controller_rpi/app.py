@@ -12,7 +12,7 @@ class App:
     """
     Main App class to start on the controller Raspberry Pi. 
     """
-    __remote_rpi_ip = "localhost"
+    __remote_rpi_ip = "169.254.111.142"
     __remote_rpi_cmd_port = 1025
     __remote_rpi_video_port = 1024
     __connection = None
@@ -58,7 +58,7 @@ class App:
         """
         Main function, starts the program on controller's side
         """
-        ip = input("Remote RPI IP (enter to use localhost): ")
+        ip = input("Remote RPI IP (enter to use 169.254.111.142): ")
         if ip is not None and ip != "":
             self.__remote_rpi_ip = ip
         cmd_port = input("Remote RPI command port (enter to use 1025): ")
@@ -126,7 +126,7 @@ class App:
         Starts the video livestream and keeps a reference to the sub process created
         """
         cmd = "mplayer -fps 200 -demuxer h264es ffmpeg://tcp://{}:{}".format(self.__remote_rpi_ip, self.__remote_rpi_video_port)
-        self.__videostream_sp = sp.Popen(cmd, stdout=sp.PIPE, shell=True, preexec_fn=os.setsid)
+        self.__videostream_sp = sp.Popen(cmd, stderr=sp.DEVNULL, stdout=sp.DEVNULL, shell=True, preexec_fn=os.setsid)
     
     def stop_livestream(self):
         """
