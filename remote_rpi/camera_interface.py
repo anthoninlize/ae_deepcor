@@ -31,6 +31,11 @@ class Liveview:
 		# Testing if picture folder exists, creating it otherwise
 		if not os.path.isdir(self.__pictureFilePath):
 			os.makedirs(self.__pictureFilePath)
+		subdirIteration = 1
+		if os.path.isdir(self.__pictureFilePath + str(subdirIteration) + "/"):
+			subdirIteration += 1
+		self.__pictureFilePath += str(subdirIteration) + "/"
+		os.makedirs(self.__pictureFilePath)
 
 
 	def __getRaspividCommand(self, broadcastingPort, width, height, fps):
@@ -49,6 +54,9 @@ class Liveview:
 		return ("raspistill -n -t 1 -w " + str(width) + " -h " + str(height)
 			+ " -o " + self.__pictureFilePath 
 			+ self.__currentFileName)
+			
+	def getPicturePath(self):
+		return self.__pictureFilePath
 
 	def startVideo(self, **kwargs):
 		"""

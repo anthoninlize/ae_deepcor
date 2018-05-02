@@ -141,7 +141,7 @@ class Server:
 					commandParameters[param[0]] = param[1]
 			file_name = self.__liveview.capture(**commandParameters)
 			# TODO : get the pictures path from the camera_interface, or store it there and access it from the camera_interface
-			filepath = os.path.abspath("./pictures/" + file_name)
+			filepath = os.path.abspath(self.__liveview.getPicturePath() + file_name)
 			self.send_message("capturedone")
 			logging.debug("sending filename...")
 			time.sleep(1)
