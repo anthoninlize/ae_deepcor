@@ -17,7 +17,7 @@ class App:
     __remote_rpi_video_port = 1024
     __connection = None
     __videostream_sp = None
-    __pictures_folder = "./pictures/"
+    __pictures_folder = "/home/pi/workspace/pictures/"
 
     def __init__(self):
         """

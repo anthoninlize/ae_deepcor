@@ -122,7 +122,7 @@ class Server:
 		logging.debug(command)
 
 		if command.startswith("startvideo"):
-			commandParameters = {"width": None, "height": None, "fps": None}
+			commandParameters = {"width": None, "height": None, "fps": None, "co": None, "br": None, "sa": None, "iso": None, "ev": None}
 			parts = command.split(" ")
 			for part in parts:
 				param = part.split("=")
@@ -133,7 +133,7 @@ class Server:
 			self.send_message("videostarted")
 
 		elif command.startswith("capture"):
-			commandParameters = {"width": None, "height": None}
+			commandParameters = {"width": None, "height": None, "co": None, "br": None, "sa": None, "iso": None, "ev": None}
 			parts = command.split(" ")
 			for part in parts:
 				param = part.split("=")
@@ -141,7 +141,7 @@ class Server:
 					commandParameters[param[0]] = param[1]
 			file_name = self.__liveview.capture(**commandParameters)
 			# TODO : get the pictures path from the camera_interface, or store it there and access it from the camera_interface
-			filepath = os.path.abspath(self.__liveview.getPicturePath() + file_name)
+			filepath = self.__liveview.getPicturePath() + file_name
 			self.send_message("capturedone")
 			logging.debug("sending filename...")
 			time.sleep(1)
